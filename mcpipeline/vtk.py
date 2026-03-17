@@ -242,6 +242,37 @@ def VTKFilterDecoder(dct):
   
   return dct
 
+def ReadBin(file_path: str, shape: tuple, dtype: str = 'float32') -> vtk.vtkAlgorithm:
+  """Read a raw binary scalar field file and return a VTK PlaneSource.
+
+  The file is expected to contain a flat array of scalar values in row-major
+  (C) order with no header.
+
+  Parameters
+  ----------
+  file_path : str
+      Path to the ``.bin`` file.
+  shape : tuple of int
+      2-D shape ``(rows, cols)`` of the scalar field stored in the file.
+  dtype : str, optional
+      NumPy dtype string for the stored values, e.g. ``'float32'`` (default)
+      or ``'float64'``.
+
+  Returns
+  -------
+  vtk.vtkAlgorithm
+      A VTK PlaneSource whose scalar point data contains the loaded field.
+  """
+  scalars = np.fromfile(file_path, dtype=dtype)
+  expected = shape[0] * shape[1]
+  if scalars.size != expected:
+    raise ValueError(
+      f"File '{file_path}' contains {scalars.size} values but "
+      f"shape {shape} requires {expected}."
+    )
+  return PlaneSource(scalars.reshape(shape).astype(float))
+
+
 def PlaneSource(scalars: np.ndarray) -> vtk.vtkAlgorithm:  
   assert(scalars.ndim == 2)
   

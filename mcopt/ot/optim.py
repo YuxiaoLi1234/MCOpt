@@ -5,7 +5,10 @@ Optimization algorithms for OT
 
 
 import numpy as np
-from scipy.optimize.linesearch import scalar_search_armijo
+try:
+  from scipy.optimize.linesearch import scalar_search_armijo
+except ImportError:
+  from scipy.optimize._linesearch import scalar_search_armijo
 from ot.lp import emd
 from ot.optim import line_search_armijo
 import warnings
